@@ -1,0 +1,6 @@
+<?php
+// Run from a terminal: php setup_admin.php admin@example.com "Use-A-Strong-Password"
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit("Run this script from the command line only.\n"); }
+if ($argc < 3 || !filter_var($argv[1], FILTER_VALIDATE_EMAIL) || strlen($argv[2]) < 12) { fwrite(STDERR, "Usage: php setup_admin.php admin@example.com \"AtLeast12Characters\"\nPassword must be at least 12 characters.\n"); exit(1); }
+$config=require __DIR__.'/config/config.php';
+try{$pdo=new PDO('mysql:host='.$config['db_host'].';dbname='.$config['db_name'].';charset=utf8mb4',$config['db_user'],$config['db_pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);$stmt=$pdo->prepare('INSERT INTO admins (email,password_hash) VALUES (?,?) ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash)');$stmt->execute([$argv[1],password_hash($argv[2],PASSWORD_DEFAULT)]);echo 'Admin account ready for '.$argv[1].PHP_EOL;}catch(Throwable $e){fwrite(STDERR,'Setup failed: '.$e->getMessage().PHP_EOL);exit(1);}

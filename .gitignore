@@ -1,0 +1,9 @@
+# Ignore local config, secrets and OS files
+/config/*.local.php
+.env
+vendor/
+node_modules/
+.DS_Store
+
+# Ignore local DB exports (if any)
+*.sql.gz
